@@ -97,42 +97,70 @@ export default function Home() {
           <section className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-slate-900">Personalization Result</h2>
-              <div className="flex gap-2 text-sm">
-                {!process.env.OPENAI_API_KEY && (
-                  <span className="flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-amber-700 font-medium">
-                    <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-                    Mock Mode Active
+              <div className="flex gap-4">
+                {result.adAnalysis.offer && (
+                  <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium border border-indigo-100">
+                    Demo Mode: AI Simulation
                   </span>
                 )}
-                <span className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-green-700 font-medium">
-                  <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-100 flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                   94/100 Relevance Score
                 </span>
               </div>
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-2">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-slate-700">Original Page</h3>
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm h-[600px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 bg-slate-400 rounded-full" />
+                  Original Page
+                </h3>
+                <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm aspect-video bg-white">
                   <iframe 
-                    srcDoc={result.originalHtml} 
-                    className="h-full w-full"
-                    title="Original"
+                    srcDoc={result.originalHtml}
+                    className="w-full h-full border-none"
+                    title="Original Page"
                   />
                 </div>
               </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-slate-700">Personalized Page</h3>
-                <div className="overflow-hidden rounded-2xl border-2 border-blue-500 bg-white shadow-lg h-[600px]">
+
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full" />
+                  Personalized Page
+                </h3>
+                <div className="border-2 border-blue-100 rounded-2xl overflow-hidden shadow-md aspect-video bg-white">
                   <iframe 
-                    srcDoc={result.personalizedHtml} 
-                    className="h-full w-full"
-                    title="Personalized"
+                    srcDoc={result.personalizedHtml}
+                    className="w-full h-full border-none"
+                    title="Personalized Page"
                   />
                 </div>
               </div>
             </div>
+
+            {/* Insights Section */}
+            {result.highlights && result.highlights.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  ✨ What was improved
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {result.highlights.map((h: any, i: number) => (
+                    <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 font-bold text-xs uppercase">
+                        {h.type[0]}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900">{h.type} Updated</h4>
+                        <p className="text-sm text-slate-600 mt-1">{h.reason}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-12 grid gap-8 md:grid-cols-3">
               <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const $final = cheerio.load(originalHtml);
     
     // Highlight helper
-    const highlight = (text: string) => `<span style="background: yellow; color: black; padding: 2px 4px; border-radius: 4px;">${text}</span>`;
+    const highlight = (text: string) => `<span style="background: #fef08a; color: #1a1a1a; padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">${text}</span>`;
 
     if (personalizedContent.headline) {
       $final("h1").first().html(highlight(personalizedContent.headline));
