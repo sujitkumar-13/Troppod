@@ -21,6 +21,12 @@ export default function Home() {
         body: JSON.stringify({ adInput, url }),
       });
 
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response: ${text.slice(0, 100)}...`);
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 

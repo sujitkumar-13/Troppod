@@ -19,24 +19,36 @@ export async function analyzeAd(adInput: string) {
   const client = getOpenAI();
   
   if (!client) {
-    // Dynamic Mock Response based on input
-    const input = adInput.toLowerCase();
-    const percentMatch = adInput.match(/(\d+%)/);
-    const offer = percentMatch ? `Simulated Offer: ${percentMatch[1]} Off` : "Simulated Special Offer";
+    // Fully Dynamic Mock Simulation (Regex-based)
+    const input = adInput.trim();
+    const percentMatch = input.match(/(\d+%)/);
+    const offer = percentMatch ? `${percentMatch[1]} Off` : "Exclusive Offer";
     
-    // Attempt to guess category
-    let topic = "Products";
-    if (input.includes("shoe")) topic = "Shoes";
-    if (input.includes("elect") || input.includes("phone") || input.includes("gadget")) topic = "Electronics";
-    if (input.includes("cloth") || input.includes("fashion")) topic = "Apparel";
+    // Extract main topic: everything after common prepositions or first significant phrase
+    let topic = "Special Collection";
+    const topicMatch = input.match(/(?:on|for|of|in|buy)\s+([^.-]+)/i);
+    if (topicMatch && topicMatch[1]) {
+      topic = topicMatch[1].trim();
+      // Capitalize first letter of each word for a better look
+      topic = topic.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+    } else {
+      // Fallback: look for capitalized words that aren't common starting words
+      const words = input.split(" ");
+      for (let i = 1; i < words.length; i++) {
+        if (words[i][0] === words[i][0].toUpperCase() && words[i].length > 3) {
+          topic = words[i];
+          break;
+        }
+      }
+    }
 
     return {
       offer,
-      tone: "Professional & Persuasive",
-      audience: "Targeted Customers",
-      message: `Personalize for ${topic} with ${offer}.`,
-      cta: `Get ${topic} Now`,
-      _mockTopic: topic // Internal helper for personalization mock
+      tone: "Persuasive & Professional",
+      audience: "High-intent consumers",
+      message: `Dynamic personalization for ${topic} with ${offer}`,
+      cta: `Shop ${topic} Now`,
+      _mockTopic: topic
     };
   }
 
@@ -45,19 +57,18 @@ export async function analyzeAd(adInput: string) {
     messages: [
       {
         role: "system",
-        content: "You are an expert marketing analyst. Return JSON only.",
+        content: "You are a senior marketing strategist and CRO expert. Analyze ad copy and extract core value propositions. Return JSON only.",
       },
       {
         role: "user",
-        content: `Analyze the following ad creative and extract:
-1. Offer (discount, urgency, benefit)
-2. Tone (luxury, urgent, casual, premium)
-3. Target audience
-4. Key messaging
-5. Suggested CTA
+        content: `Ad Copy: "${adInput}"
 
-Ad:
-${adInput}
+Extract:
+1. offer: The main discount or benefit
+2. tone: The psychological tone (e.g., luxury, sense of urgency, helpful)
+3. audience: Who is this ad targeting?
+4. message: A 1-sentence summary of the hook
+5. cta: A recommended call-to-action string
 
 Return JSON only:
 {
@@ -80,11 +91,17 @@ export async function personalizeHtml(adAnalysisJson: any, textContent: any) {
   const client = getOpenAI();
 
   if (!client) {
-    // Basic Mock Personalization: Use the dynamic data
-    const topic = (adAnalysisJson as any)._mockTopic || "Your Needs";
+    // Fully Dynamic Mock Personalization
+    const topic = (adAnalysisJson as any)._mockTopic || "this Collection";
+    const offer = adAnalysisJson.offer || "Special Savings";
+    
     return {
-      headline: `${adAnalysisJson.offer}: Personalized for ${topic}`,
-      cta: adAnalysisJson.cta || "Shop Now"
+      headline: `Get ${offer} on ${topic} Today!`,
+      cta: `Shop ${topic} Now`,
+      explanation: [
+        { type: "Headline", reason: `Dynamic alignment with the ${offer} mentioned in your ad.` },
+        { type: "CTA", reason: `Context-specific action for ${topic} keyword.` }
+      ]
     };
   }
 
@@ -93,22 +110,34 @@ export async function personalizeHtml(adAnalysisJson: any, textContent: any) {
     messages: [
       {
         role: "system",
-        content: "You are a CRO expert. You will receive existing page content and ad creative data. Your task is to provide personalized improvements for specific elements. Return JSON only.",
+        content: "You are a world-class Conversion Rate Optimization (CRO) expert. Your goal is to rewrite website text to perfectly match an advertisement's messaging. Avoid generic boilerplate. Be specific, punchy, and persuasive.",
       },
       {
         role: "user",
-        content: `Ad Data:
+        content: `AD DATA:
 ${JSON.stringify(adAnalysisJson, null, 2)}
 
-Existing Page Content:
+EXISTING PAGE CONTENT:
 ${JSON.stringify(textContent, null, 2)}
 
 TASK:
-Provide better versions of the headline and primary CTA text.
+1. headline: Rewrite the H1 to match the ad's offer and tone. Be extremely specific to the product/service mentioned.
+2. cta: Rewrite the button text to be more compelling and relevant to the ad.
+3. explanation: Provide a 1-sentence reason for each change.
+
+STRICT RULES:
+- NO generic placeholders like 'Products' or 'Your Needs'.
+- Match the ad's specific offer and messaging.
+- Maintain the original tone (luxury should stay luxury, etc.).
+
 Return JSON only:
 {
-  "headline": "Improved Headline",
-  "cta": "Improved CTA Text"
+  "headline": "Personalized Headline",
+  "cta": "Compelling CTA",
+  "explanation": [
+    { "type": "Headline", "reason": "" },
+    { "type": "CTA", "reason": "" }
+  ]
 }`,
       },
     ],
